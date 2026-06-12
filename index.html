@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punit Sehrawat — Gameplay Programmer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #06080f;
+  --bg2:     #0b0e19;
+  --card:    #0f1220;
+  --border:  #1c2235;
+  --border2: #253049;
+  --gold:    #c9a84c;
+  --gold2:   #e8c87a;
+  --gold3:   #fff1c8;
+  --blue2:   #6fa3cc;
+  --text:    #e8ecf4;
+  --text2:   #a8b4cc;
+  --text3:   #6a7a96;
+  --green:   #4cde80;
+  --lp: 18%;
+  --rp: 18%;
+  --tx:    16px;
+  --tx-sm: 14px;
+  --tx-lg: 18px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--tx);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--lp); height: 60px;
+  background: rgba(6,8,15,0.96);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.n-logo {
+  font-family: 'Playfair Display'; font-size: 1.15rem; font-weight: 900;
+  color: var(--gold2); letter-spacing: 0.02em; text-decoration: none;
+}
+.navlinks { display: flex; list-style: none; }
+.navlinks li button {
+  background: none; border: none;
+  color: var(--text3); font-family: 'DM Sans'; font-size: var(--tx-sm);
+  padding: 0 1rem; height: 60px; letter-spacing: 0.04em;
+  transition: color 0.2s; position: relative; cursor: pointer;
+}
+.navlinks li button::after {
+  content: ''; position: absolute; bottom: 0; left: 1rem; right: 1rem;
+  height: 2px; background: var(--gold); transform: scaleX(0); transition: transform 0.2s;
+}
+.navlinks li button:hover { color: var(--text); }
+.navlinks li button.active { color: var(--gold2); }
+.navlinks li button.active::after { transform: scaleX(1); }
+.n-badge {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--green); border: 1px solid rgba(76,222,128,0.28);
+  padding: 0.22rem 0.75rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.n-dot { width: 5px; height: 5px; background: var(--green); border-radius: 50%; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* ── PAGE SYSTEM ── */
+.page { display: none; padding-top: 60px; min-height: 100vh; }
+.page.active { display: block; }
+
+/* ── SHARED ── */
+.pg-wrap { padding: 4rem var(--lp) 6rem; }
+.eyebrow {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.7rem;
+}
+.pg-title {
+  font-family: 'Playfair Display'; font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 900; line-height: 1.05; margin-bottom: 0.6rem;
+}
+.pg-sub { font-size: var(--tx); color: var(--text2); max-width: 520px; margin-bottom: 3rem; }
+.divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 3rem 0; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  padding: 0.75rem 1.6rem; font-size: var(--tx-sm); font-family: 'DM Sans';
+  font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
+  text-decoration: none; transition: all 0.2s; cursor: pointer;
+}
+.btn-gold { background: var(--gold); color: #0b0e19; border: none; }
+.btn-gold:hover { background: var(--gold3); transform: translateY(-1px); }
+.btn-out { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-out:hover { border-color: var(--gold); color: var(--gold2); transform: translateY(-1px); }
+
+/* ── ABOUT ── */
+.about-hero {
+  display: grid; grid-template-columns: 1fr 320px;
+  gap: 4rem; align-items: start; margin-bottom: 4rem;
+}
+.ah-tag {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.28); padding: 0.28rem 0.7rem; margin-bottom: 1.6rem;
+}
+.ah-name {
+  font-family: 'Playfair Display'; font-weight: 900;
+  font-size: clamp(2.8rem, 5.5vw, 5rem); line-height: 0.98;
+  color: var(--text); margin-bottom: 0.9rem;
+}
+.ah-name em { color: var(--gold2); font-style: italic; display: block; }
+.ah-role { font-size: var(--tx-lg); color: var(--text2); font-weight: 300; margin-bottom: 0.5rem; }
+.ah-role strong { color: var(--blue2); font-weight: 500; }
+.ah-edu { font-family: 'DM Mono'; font-size: 12px; color: var(--text3); letter-spacing: 0.05em; margin-bottom: 2rem; }
+.ah-desc { font-size: var(--tx); color: var(--text2); line-height: 1.75; max-width: 480px; margin-bottom: 2rem; }
+.ah-cta { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+/* Profile card */
+.profile-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1.8rem; position: relative; overflow: hidden;
+}
+.profile-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--blue2), transparent);
+}
+.profile-pic-wrap { display: flex; justify-content: center; margin-bottom: 1.2rem; }
+.profile-pic {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 2px solid rgba(201,168,76,0.35); object-fit: cover; background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-pic-fallback {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 2px solid rgba(201,168,76,0.35); background: var(--bg2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display'; font-size: 1.6rem; font-weight: 900; color: var(--gold2);
+}
+.profile-links { display: flex; flex-direction: column; gap: 0.4rem; }
+.profile-link {
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.45rem 0.75rem; border: 1px solid var(--border);
+  color: var(--text3); text-decoration: none; font-size: 12px;
+  transition: all 0.18s; font-family: 'DM Mono';
+}
+.profile-link:hover { border-color: var(--gold); color: var(--gold2); }
+.profile-link svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* About body */
+.about-body { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 4rem; }
+.bio-text { font-size: var(--tx); line-height: 1.9; color: var(--text2); }
+.bio-text p { margin-bottom: 1rem; }
+.bio-text strong { color: var(--text); font-weight: 500; }
+.bio-text .hl { color: var(--gold2); }
+.sk-cats { display: flex; flex-direction: column; gap: 1.2rem; }
+.sk-cat-title {
+  font-size: 11px; font-family: 'DM Mono'; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 0.5rem;
+}
+.sk-pills { display: flex; flex-wrap: wrap; gap: 0.38rem; }
+.sk-pill {
+  font-size: var(--tx-sm); padding: 0.26rem 0.75rem;
+  border: 1px solid var(--border2); color: var(--text2); transition: all 0.18s;
+}
+.sk-pill:hover { border-color: var(--gold); color: var(--gold2); }
+
+/* ── PLAY GAMES FLOATING BUTTON ── */
+.play-fab {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 400;
+  display: flex; align-items: center; gap: 0.55rem;
+  padding: 0.7rem 1.3rem;
+  background: linear-gradient(135deg, #c9a84c, #e8c87a);
+  color: #0b0e19; font-family: 'DM Sans'; font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 24px rgba(201,168,76,0.35);
+  transition: all 0.2s;
+  animation: fabpulse 3s ease-in-out infinite;
+}
+.play-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.5); }
+@keyframes fabpulse {
+  0%,100% { box-shadow: 0 4px 24px rgba(201,168,76,0.35); }
+  50% { box-shadow: 0 4px 32px rgba(201,168,76,0.6); }
+}
+.play-fab svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* ── PROJECTS ── */
+.proj-section-label {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 1rem;
+  padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+}
+.proj-section-label span { color: var(--gold); }
+.proj-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); margin-bottom: 3rem; }
+.proj-grid-sm { grid-template-columns: repeat(3, 1fr); }
+.proj-card {
+  background: var(--card); cursor: pointer; position: relative;
+  overflow: hidden; transition: background 0.2s;
+}
+.proj-card:hover { background: var(--bg2); }
+.proj-card:hover .pc-arrow { transform: translate(0,0); opacity: 1; }
+.pc-visual {
+  width: 100%; aspect-ratio: 16/9;
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+}
+.pc-year {
+  position: absolute; top: 0.5rem; right: 0.6rem;
+  font-family: 'DM Mono'; font-size: 10px; color: var(--text3);
+  background: rgba(6,8,15,0.8); padding: 0.12rem 0.4rem; letter-spacing: 0.06em; z-index: 2;
+}
+.pc-featured-badge {
+  position: absolute; top: 0.5rem; left: 0.6rem;
+  font-family: 'DM Mono'; font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold);
+  background: rgba(6,8,15,0.85); border: 1px solid rgba(201,168,76,0.3);
+  padding: 0.1rem 0.4rem; z-index: 2;
+}
+.pc-arrow {
+  position: absolute; bottom: 0.6rem; right: 0.6rem; z-index: 2;
+  width: 26px; height: 26px; border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center; color: var(--gold);
+  transform: translate(8px,8px); opacity: 0; transition: all 0.2s;
+}
+.pc-body { padding: 1rem 1.2rem; }
+.pc-engine {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.28rem;
+}
+.pc-name {
+  font-family: 'Playfair Display'; font-size: 1.1rem; font-weight: 700;
+  color: var(--text); margin-bottom: 0.28rem;
+}
+.pc-desc { font-size: var(--tx-sm); color: var(--text3); line-height: 1.5; }
+.pc-foot { padding: 0 1.2rem 1.1rem; display: flex; gap: 0.32rem; flex-wrap: wrap; }
+.pc-chip {
+  font-size: 11px; padding: 0.14rem 0.48rem;
+  border: 1px solid var(--border); color: var(--text3); font-family: 'DM Mono';
+}
+
+/* ── PROJECT DETAIL ── */
+.pd-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: var(--tx-sm); color: var(--text3); cursor: pointer;
+  margin-bottom: 2.5rem; transition: color 0.18s;
+  background: none; border: none; font-family: 'DM Sans'; letter-spacing: 0.03em;
+}
+.pd-back:hover { color: var(--gold2); }
+.pd-layout { display: grid; grid-template-columns: 1fr 290px; gap: 3rem; align-items: start; }
+.pd-eyebrow {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.65rem;
+}
+.pd-title {
+  font-family: 'Playfair Display'; font-size: clamp(1.9rem, 3.8vw, 3rem);
+  font-weight: 900; color: var(--text); margin-bottom: 0.65rem; line-height: 1.08;
+}
+.pd-tagline { font-size: var(--tx-lg); color: var(--text2); font-weight: 300; margin-bottom: 1.5rem; line-height: 1.55; }
+.pd-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.pd-btn {
+  font-size: var(--tx-sm); padding: 0.5rem 1.1rem;
+  border: 1px solid var(--border2); color: var(--text2); text-decoration: none;
+  transition: all 0.18s; display: flex; align-items: center; gap: 0.4rem;
+  font-weight: 500; cursor: pointer;
+}
+.pd-btn:hover { border-color: var(--gold); color: var(--gold2); }
+.pd-btn.primary { background: var(--gold); color: #0b0e19; border-color: var(--gold); font-weight: 600; }
+.pd-btn.primary:hover { background: var(--gold3); }
+
+/* Video */
+.pd-video { width: 100%; border: 1px solid var(--border); margin-bottom: 2rem; background: #000; overflow: hidden; }
+.pd-vthumb {
+  width: 100%; aspect-ratio: 16/9; background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 1rem; cursor: pointer; position: relative;
+}
+.pd-play-btn {
+  width: 58px; height: 58px; border-radius: 50%;
+  border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center;
+  color: var(--gold); transition: all 0.22s;
+}
+.pd-vthumb:hover .pd-play-btn { background: var(--gold); color: #0b0e19; box-shadow: 0 0 28px rgba(201,168,76,0.3); }
+.pd-vthumb-label { font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.14em; color: var(--text3); text-transform: uppercase; }
+.pd-no-video {
+  width: 100%; aspect-ratio: 16/9; background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 0.75rem;
+}
+.pd-no-video-label { font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.14em; color: var(--text3); text-transform: uppercase; }
+.pd-iframe { width: 100%; aspect-ratio: 16/9; border: none; display: none; }
+.pd-iframe.on { display: block; }
+
+.pd-section-lbl {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 0.75rem;
+}
+.pd-body { font-size: var(--tx); line-height: 1.85; color: var(--text2); }
+.pd-body p { margin-bottom: 0.9rem; }
+
+/* Sidebar cards */
+.pd-scard {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1.3rem; margin-bottom: 0.9rem; position: relative; overflow: hidden;
+}
+.pd-scard::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.pds-lbl {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 0.75rem;
+}
+.pds-rows { display: flex; flex-direction: column; gap: 0.38rem; }
+.pds-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); font-size: var(--tx-sm);
+}
+.pds-rname { color: var(--text2); }
+.pds-rval { font-family: 'DM Mono'; font-size: 11px; color: var(--gold); }
+.pds-chips { display: flex; flex-wrap: wrap; gap: 0.32rem; }
+.pds-chip {
+  font-size: 11px; padding: 0.22rem 0.55rem;
+  border: 1px solid var(--border2); color: var(--text2); font-family: 'DM Mono';
+}
+.pds-notes { display: flex; flex-direction: column; gap: 0.5rem; }
+.pdn-row { display: flex; gap: 0.65rem; align-items: flex-start; }
+.pdn-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; flex-shrink: 0; margin-top: 0.5rem; }
+.pdn-txt { font-size: var(--tx-sm); color: var(--text2); line-height: 1.6; }
+.pdn-txt strong { color: var(--text); font-weight: 500; }
+
+/* ── TIMELINE ── */
+.tl-list { margin-top: 2.5rem; display: flex; flex-direction: column; max-width: 780px; }
+.tl-item {
+  display: grid; grid-template-columns: 140px 1fr;
+  gap: 0 2rem; padding-bottom: 2.5rem; position: relative;
+}
+.tl-item::before {
+  content: ''; position: absolute; left: 140px; top: 10px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.tl-item:last-child::before { display: none; }
+.tl-item::after {
+  content: ''; position: absolute; left: 136px; top: 8px;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--gold); border: 2px solid var(--bg);
+  box-shadow: 0 0 8px rgba(201,168,76,0.4);
+}
+.tl-item.dot-blue::after { background: var(--blue2); box-shadow: 0 0 8px rgba(111,163,204,0.4); }
+.tl-item.dot-green::after { background: var(--green); box-shadow: 0 0 8px rgba(76,222,128,0.4); }
+.tl-left { padding-top: 0.1rem; }
+.tl-date { font-family: 'DM Mono'; font-size: 12px; color: var(--gold); letter-spacing: 0.07em; white-space: nowrap; }
+.tl-kind { font-size: 11px; color: var(--text3); margin-top: 0.18rem; font-family: 'DM Mono'; }
+.tl-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1.3rem 1.7rem; margin-left: 2rem; transition: border-color 0.2s;
+}
+.tl-card:hover { border-color: var(--border2); }
+.tl-type {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; margin-bottom: 0.38rem;
+}
+.tl-type.edu   { color: var(--blue2); }
+.tl-type.intern { color: var(--gold); }
+.tl-type.project { color: var(--text3); }
+.tl-type.now { color: var(--green); }
+.tl-card-title { font-family: 'Playfair Display'; font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.tl-place { font-size: var(--tx-sm); color: var(--text3); margin-bottom: 0.7rem; }
+.tl-desc { font-size: var(--tx); line-height: 1.8; color: var(--text2); }
+.tl-tags { display: flex; flex-wrap: wrap; gap: 0.32rem; margin-top: 0.75rem; }
+.tl-tag { font-size: 11px; padding: 0.16rem 0.55rem; border: 1px solid var(--border); color: var(--text3); font-family: 'DM Mono'; }
+
+/* ── RESUME ── */
+.resume-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+.resume-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 2.2rem; position: relative; overflow: hidden;
+}
+.resume-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--blue2), transparent);
+}
+.rc-icon { width: 40px; height: 40px; border: 1px solid var(--border2); display: flex; align-items: center; justify-content: center; margin-bottom: 1.2rem; color: var(--gold); }
+.rc-lbl { font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.4rem; }
+.rc-title { font-family: 'Playfair Display'; font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+.rc-sub { font-size: var(--tx); color: var(--text2); margin-bottom: 1.8rem; line-height: 1.7; }
+.rc-btns { display: flex; flex-direction: column; gap: 0.55rem; }
+.rc-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.8rem 1.1rem; border: 1px solid var(--border2); color: var(--text2);
+  text-decoration: none; font-size: var(--tx); transition: all 0.18s;
+  cursor: pointer; background: transparent; font-family: 'DM Sans'; font-weight: 500; width: 100%;
+}
+.rc-btn:hover { border-color: var(--gold); color: var(--gold2); background: rgba(201,168,76,0.04); }
+.rc-btn.primary { background: var(--gold); color: #0b0e19; border-color: var(--gold); font-weight: 600; }
+.rc-btn.primary:hover { background: var(--gold3); }
+.rc-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.resume-highlights { display: flex; flex-direction: column; gap: 0.9rem; }
+.rh-card { background: var(--card); border: 1px solid var(--border); padding: 1.3rem 1.5rem; }
+.rh-eyebrow { font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.3rem; }
+.rh-title { font-family: 'Playfair Display'; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 0.18rem; }
+.rh-sub { font-size: var(--tx-sm); color: var(--text3); }
+
+/* ── CONTACT ── */
+.contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.contact-direct { margin-bottom: 2.2rem; }
+.cd-label { font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.75rem; }
+.cd-btn {
+  display: inline-flex; align-items: center; gap: 0.55rem;
+  padding: 0.85rem 1.7rem; background: var(--gold); color: #0b0e19;
+  font-family: 'DM Sans'; font-size: var(--tx-sm); font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; transition: all 0.2s;
+}
+.cd-btn:hover { background: var(--gold3); transform: translateY(-1px); }
+.contact-desc { font-size: var(--tx); color: var(--text2); line-height: 1.85; margin-bottom: 2.2rem; }
+.socials-list { display: flex; flex-direction: column; gap: 0.45rem; }
+.soc-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.85rem 1.1rem; border: 1px solid var(--border);
+  text-decoration: none; color: var(--text2); transition: all 0.2s; cursor: pointer;
+}
+.soc-row:hover { border-color: var(--gold); color: var(--text); transform: translateX(3px); }
+.soc-row:hover .soc-icon { border-color: var(--gold); color: var(--gold); }
+.soc-row:hover .soc-arr { color: var(--gold); }
+.soc-l { display: flex; align-items: center; gap: 0.85rem; }
+.soc-icon {
+  width: 32px; height: 32px; border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); flex-shrink: 0; transition: all 0.2s;
+}
+.soc-icon svg { width: 13px; height: 13px; }
+.soc-name { font-size: var(--tx); font-weight: 500; }
+.soc-handle { font-size: 12px; color: var(--text3); font-family: 'DM Mono'; }
+.soc-arr { color: var(--text3); transition: color 0.2s; }
+.avail-card {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 1.8rem; position: relative; overflow: hidden; margin-bottom: 0.9rem;
+}
+.avail-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--green), transparent);
+}
+.avail-header { display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.9rem; }
+.avail-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: blink 2s infinite; }
+.avail-title { font-family: 'Playfair Display'; font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.avail-desc { font-size: var(--tx); color: var(--text2); line-height: 1.8; }
+
+.cd-email-wrap { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.cd-email-addr { font-family: 'DM Mono'; font-size: 14px; color: var(--gold2); letter-spacing: 0.03em; }
+.cd-copy-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.9rem; background: transparent; border: 1px solid var(--border2);
+  color: var(--text2); font-family: 'DM Sans'; font-size: 12px; font-weight: 500;
+  letter-spacing: 0.05em; cursor: pointer; transition: all 0.18s;
+}
+.cd-copy-btn:hover { border-color: var(--gold); color: var(--gold2); }
+
+/* ── PLAY GAMES PAGE ── */
+.games-hero {
+  margin-bottom: 3rem;
+}
+.games-featured-label {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 1rem;
+  padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+}
+.games-featured-label span { color: var(--gold); }
+.games-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); margin-bottom: 3rem; }
+.game-card {
+  background: var(--card); cursor: pointer; position: relative;
+  overflow: hidden; transition: background 0.2s;
+}
+.game-card:hover { background: var(--bg2); }
+.game-card:hover .gc-arrow { transform: translate(0,0); opacity: 1; }
+.gc-visual {
+  width: 100%; aspect-ratio: 16/9;
+  display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+}
+.gc-badge {
+  position: absolute; top: 0.5rem; left: 0.6rem;
+  font-family: 'DM Mono'; font-size: 9px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold);
+  background: rgba(6,8,15,0.85); border: 1px solid rgba(201,168,76,0.3);
+  padding: 0.1rem 0.4rem; z-index: 2;
+}
+.gc-platform-badge {
+  position: absolute; top: 0.5rem; right: 0.6rem;
+  font-family: 'DM Mono'; font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--green);
+  background: rgba(6,8,15,0.85); border: 1px solid rgba(76,222,128,0.25);
+  padding: 0.1rem 0.4rem; z-index: 2;
+}
+.gc-arrow {
+  position: absolute; bottom: 0.6rem; right: 0.6rem; z-index: 2;
+  width: 26px; height: 26px; border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center; color: var(--gold);
+  transform: translate(8px,8px); opacity: 0; transition: all 0.2s;
+}
+.gc-body { padding: 1rem 1.2rem; }
+.gc-platform {
+  font-family: 'DM Mono'; font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 0.28rem;
+}
+.gc-name {
+  font-family: 'Playfair Display'; font-size: 1.1rem; font-weight: 700;
+  color: var(--text); margin-bottom: 0.28rem;
+}
+.gc-desc { font-size: var(--tx-sm); color: var(--text3); line-height: 1.5; }
+.gc-foot { padding: 0.6rem 1.2rem 1.1rem; }
+.gc-btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.5rem 1.1rem; background: var(--gold); color: #0b0e19;
+  font-family: 'DM Sans'; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+  transition: all 0.18s;
+}
+.gc-btn:hover { background: var(--gold3); }
+.gc-btn.out {
+  background: transparent; color: var(--text2); border: 1px solid var(--border2);
+}
+.gc-btn.out:hover { border-color: var(--gold); color: var(--gold2); }
+.gc-btn svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* Itch.io suggestion card */
+.itch-suggestion {
+  background: var(--card); border: 1px solid var(--border);
+  padding: 2rem; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+  flex-wrap: wrap;
+}
+.itch-suggestion::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, #fa5c5c, #ff8c42, transparent);
+}
+.itch-l { display: flex; align-items: center; gap: 1.2rem; }
+.itch-icon {
+  width: 44px; height: 44px; border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(250,92,92,0.08); flex-shrink: 0;
+}
+.itch-title { font-family: 'Playfair Display'; font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.18rem; }
+.itch-sub { font-size: var(--tx-sm); color: var(--text3); }
+.itch-link {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.65rem 1.4rem; border: 1px solid rgba(250,92,92,0.35); color: #fa5c5c;
+  font-family: 'DM Sans'; font-size: var(--tx-sm); font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; flex-shrink: 0;
+}
+.itch-link:hover { background: rgba(250,92,92,0.08); transform: translateY(-1px); }
+.itch-link svg { width: 12px; height: 12px; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 1.2rem var(--lp); border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text3); font-family: 'DM Mono';
+}
+.f-brand { color: var(--gold2); }
+
+/* ── RESPONSIVE ── */
+@media(max-width: 1050px) {
+  :root { --lp: 5%; --rp: 5%; }
+  .about-hero { grid-template-columns: 1fr; gap: 2.5rem; }
+  .about-body { grid-template-columns: 1fr; gap: 2.5rem; }
+  .proj-grid { grid-template-columns: repeat(2, 1fr); }
+  .proj-grid-sm { grid-template-columns: repeat(2, 1fr); }
+  .pd-layout { grid-template-columns: 1fr; }
+  .resume-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  nav { padding: 0 5%; }
+  .games-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width: 620px) {
+  .proj-grid { grid-template-columns: 1fr; }
+  .proj-grid-sm { grid-template-columns: 1fr; }
+  .games-grid { grid-template-columns: 1fr; }
+  .tl-item { grid-template-columns: 1fr; gap: 0.4rem; }
+  .tl-item::before, .tl-item::after { display: none; }
+  .tl-card { margin-left: 0; }
+  .navlinks li button { padding: 0 0.6rem; font-size: 12px; }
+  .n-badge { display: none; }
+  .play-fab { bottom: 1rem; right: 1rem; padding: 0.6rem 1rem; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="n-logo" href="#" onclick="showPage('about');return false;">Punit Sehrawat</a>
+  <ul class="navlinks">
+    <li><button onclick="showPage('about')"    data-page="about"    class="active">About</button></li>
+    <li><button onclick="showPage('projects')" data-page="projects">Projects</button></li>
+    <li><button onclick="showPage('games')"    data-page="games">Play Games</button></li>
+    <li><button onclick="showPage('timeline')" data-page="timeline">Timeline</button></li>
+    <li><button onclick="showPage('resume')"   data-page="resume">Résumé</button></li>
+    <li><button onclick="showPage('contact')"  data-page="contact">Contact</button></li>
+  </ul>
+  <div class="n-badge"><div class="n-dot"></div>Open to Work</div>
+</nav>
+
+<!-- FLOATING PLAY BUTTON (visible on About page) -->
+<button class="play-fab" id="play-fab" onclick="showPage('games')">
+  <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+  Play My Games
+</button>
+
+<!-- ════════════════════════════════
+     ABOUT
+════════════════════════════════ -->
+<div class="page active" id="pg-about">
+<div class="pg-wrap">
+
+  <div class="about-hero">
+    <div class="ah-left">
+      <div class="ah-tag">
+        <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2"/><circle cx="5" cy="5" r="1.8" fill="currentColor" opacity="0.6"/></svg>
+        Gameplay Programmer
+      </div>
+      <h1 class="ah-name">Punit<em>Sehrawat.</em></h1>
+      <p class="ah-role">Building <strong>interactive systems</strong> — one mechanic at a time.</p>
+      <p class="ah-desc">From sketching game ideas on paper to building them in Unity — I've been designing gameplay mechanics long before writing a line of code. Now I turn those ideas into real, playable systems.</p>
+      <div class="ah-cta">
+        <button class="btn btn-gold" onclick="showPage('projects')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          View Projects
+        </button>
+        <button class="btn btn-out" onclick="showPage('games')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          Play My Games
+        </button>
+        <button class="btn btn-out" onclick="showPage('contact')">Get In Touch</button>
+      </div>
+    </div>
+
+    <div class="ah-right">
+      <div class="profile-card">
+        <div class="profile-pic-wrap">
+          <img src="ProfilePic.jpg" alt="Punit Sehrawat" class="profile-pic"
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="profile-pic-fallback" style="display:none;">PS</div>
+        </div>
+        <div class="profile-links">
+          <a href="https://github.com/punitsehrawat16" target="_blank" class="profile-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+            github.com/punitsehrawat16
+          </a>
+          <a href="https://linkedin.com/in/punitsehrawat16" target="_blank" class="profile-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            linkedin.com/in/punitsehrawat16
+          </a>
+          <a href="https://punitsehrawat16.itch.io" target="_blank" class="profile-link">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.13 1.338C2.08 1.96.02 4.328 0 6.435v1.03c0 1.3.98 2.44 2.395 2.44 1.394 0 2.484-1.104 2.484-2.479 0 1.375 1.059 2.479 2.456 2.479 1.394 0 2.42-1.104 2.42-2.479 0 1.375 1.124 2.479 2.52 2.479h.028c1.394 0 2.518-1.104 2.518-2.479 0 1.375 1.026 2.479 2.42 2.479 1.397 0 2.456-1.104 2.456-2.479 0 1.375 1.09 2.479 2.484 2.479C23.02 9.905 24 8.765 24 7.465V6.435c-.02-2.107-2.08-4.475-3.13-5.097C19.02.658 14.37.03 12 0 9.63.03 4.98.658 3.13 1.338z"/></svg>
+            punitsehrawat16.itch.io
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="about-body">
+    <div>
+      <div class="eyebrow">Background</div>
+      <h2 class="pg-title" style="font-size:1.9rem;margin-bottom:1.2rem;">The Story So Far</h2>
+      <div class="bio-text">
+        <p>I build gameplay systems and interactive experiences. Most recently completed a <strong>Game Programmer internship at Yellow Cap Games</strong> (Jan–Feb 2026), where I developed core loops and mechanics for a 3D mobile title.</p>
+        <p>Previously at <strong>Blood Nexus Studio</strong> (remote), I contributed to <span class="hl">"Sheriff Showdown"</span> — a 2D mobile shooter — designing and implementing the shop UI and checkpoint persistence systems.</p>
+        <p>Pursuing my <strong>B.E. in Computer Science Engineering (Graphics &amp; Gaming)</strong> at Chandigarh University.</p>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow">Capabilities</div>
+      <h2 class="pg-title" style="font-size:1.9rem;margin-bottom:1.2rem;">Skills &amp; Tools</h2>
+      <div class="sk-cats">
+        <div>
+          <div class="sk-cat-title">Engines</div>
+          <div class="sk-pills">
+            <div class="sk-pill">Unity 2D / 3D</div>
+          </div>
+        </div>
+        <div>
+          <div class="sk-cat-title">Language</div>
+          <div class="sk-pills">
+            <div class="sk-pill">C#</div>
+          </div>
+        </div>
+        <div>
+          <div class="sk-cat-title">Systems Built</div>
+          <div class="sk-pills">
+            <div class="sk-pill">Shop Systems</div>
+            <div class="sk-pill">Checkpoint Systems</div>
+            <div class="sk-pill">Score &amp; Save</div>
+            <div class="sk-pill">PlayerPrefs</div>
+            <div class="sk-pill">Grid-Based Movement</div>
+            <div class="sk-pill">Endless Spawning</div>
+            <div class="sk-pill">Enemy AI</div>
+            <div class="sk-pill">Physics Interaction</div>
+            <div class="sk-pill">&amp; more</div>
+          </div>
+        </div>
+        <div>
+          <div class="sk-cat-title">Tools</div>
+          <div class="sk-pills">
+            <div class="sk-pill">Git / GitHub</div>
+            <div class="sk-pill">Mobile Deployment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     PROJECTS
+════════════════════════════════ -->
+<div class="page" id="pg-projects">
+<div class="pg-wrap">
+
+  <div class="eyebrow">Portfolio</div>
+  <h2 class="pg-title">Projects</h2>
+  <p class="pg-sub">Click any project for the full breakdown — systems, tech stack, and gameplay video.</p>
+
+  <!-- Featured -->
+  <div class="proj-section-label"><span>Featured</span> — strongest work</div>
+  <div class="proj-grid">
+
+    <div class="proj-card" onclick="openProject(0)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0c1322,#070c17);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(111,163,204,0.4)" stroke-width="1.2"><rect x="12" y="28" width="36" height="14" rx="2"/><circle cx="22" cy="44" r="4"/><circle cx="38" cy="44" r="4"/></svg>
+        <div class="pc-year">2026</div>
+        <div class="pc-featured-badge">Featured · Internship</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 3D · Mobile</div>
+        <div class="pc-name">Auto Rush</div>
+        <div class="pc-desc">3D mobile endless driving game developed during internship — infinite level spawning, power-ups and vehicle control systems.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Endless Spawning</div><div class="pc-chip">Power-Ups</div><div class="pc-chip">Mobile Input</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(1)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0d1828,#080f1c);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="1.2"><rect x="8" y="22" width="44" height="26" rx="2"/><path d="M20 22V16a10 10 0 0120 0v6"/><circle cx="30" cy="35" r="5"/></svg>
+        <div class="pc-year">2026</div>
+        <div class="pc-featured-badge">Featured · Solo</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Mobile</div>
+        <div class="pc-name">2D Tank Game</div>
+        <div class="pc-desc">Mobile tank game with enemy AI, shop system, and persistent progression. Live on Play Store.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Enemy AI</div><div class="pc-chip">Shop System</div><div class="pc-chip">Save System</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(2)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0d1a14,#08100b);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(76,201,130,0.4)" stroke-width="1.2"><circle cx="30" cy="26" r="11"/><path d="M20 26s2-7 10-7 10 7 10 7"/><path d="M18 48c0-7 5-12 12-12s12 5 12 12"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-featured-badge">Featured · Solo</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Action</div>
+        <div class="pc-name">Save the Kid</div>
+        <div class="pc-desc">Solo Android survival game — sword combat, endless spawning, dual-target enemy AI.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Android</div><div class="pc-chip">Endless Spawning</div><div class="pc-chip">Dual-Target AI</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(3)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#101828,#0a1020);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(111,163,204,0.4)" stroke-width="1.2"><rect x="10" y="10" width="16" height="16" rx="1"/><rect x="34" y="10" width="16" height="16" rx="1"/><rect x="10" y="34" width="16" height="16" rx="1"/><rect x="34" y="34" width="16" height="16" rx="1"/><path d="M26 18h8M18 26v8M42 26v8M26 42h8" stroke-dasharray="2 3"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-featured-badge">Featured · Solo</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Puzzle</div>
+        <div class="pc-name">Push the Box</div>
+        <div class="pc-desc">Solo sokoban-inspired puzzle — grid movement, portals, box-completion detection. Android &amp; Web.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Grid Movement</div><div class="pc-chip">Portal System</div><div class="pc-chip">Android + Web</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(4)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#100d1a,#0a0810);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(140,100,201,0.4)" stroke-width="1.2"><path d="M10 50l20-40 20 40z"/><path d="M22 34h16"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-featured-badge">Featured · Collab</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Internship</div>
+        <div class="pc-name">Sheriff Showdown</div>
+        <div class="pc-desc">Internship at Blood Nexus Studio — built 6 gameplay systems on an existing codebase.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Checkpoints</div><div class="pc-chip">Shop UI</div><div class="pc-chip">Barrel Blast</div><div class="pc-chip">Bullet Reflect</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(8)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0f1a0f,#0a120a);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(80,201,80,0.4)" stroke-width="1.2">
+          <rect x="10" y="10" width="18" height="18" rx="1"/><rect x="32" y="10" width="18" height="18" rx="1"/>
+          <rect x="10" y="32" width="18" height="18" rx="1"/><rect x="32" y="32" width="18" height="18" rx="1"/>
+          <line x1="19" y1="19" x2="41" y2="41" stroke-dasharray="3 3"/>
+          <line x1="41" y1="19" x2="19" y2="41" stroke-dasharray="3 3"/>
+        </svg>
+        <div class="pc-year">2026</div>
+        <div class="pc-featured-badge">Featured · Solo</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Android</div>
+        <div class="pc-name">Tic Tac Toe</div>
+        <div class="pc-desc">Player vs Player Tic Tac Toe for Android — custom player names, turn tracking, win/draw detection.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">PvP</div><div class="pc-chip">Win Detection</div><div class="pc-chip">Android</div></div>
+    </div>
+
+  </div>
+
+  <!-- Other Projects -->
+  <div class="proj-section-label"><span>Experiments</span> — jams &amp; prototypes</div>
+  <div class="proj-grid proj-grid-sm">
+
+    <div class="proj-card" onclick="openProject(5)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0a1520,#060e18);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(76,180,201,0.4)" stroke-width="1.2"><polygon points="30,6 54,44 6,44"/><circle cx="30" cy="30" r="5"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 2D · Game Jam</div>
+        <div class="pc-name">Blastinator</div>
+        <div class="pc-desc">Game jam collab — player mechanics, bullet switching, shield damage &amp; UI. Enemy AI by teammate.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Game Jam</div><div class="pc-chip">Bullet Switching</div><div class="pc-chip">Shield Damage</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(6)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#1a120d,#100a06);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(201,150,76,0.4)" stroke-width="1.2"><circle cx="20" cy="20" r="7"/><circle cx="42" cy="40" r="7"/><path d="M27 22l-4 16 7-6 5 8"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity · Dev Tool</div>
+        <div class="pc-name">Accuracy Testing System</div>
+        <div class="pc-desc">Measures player aiming accuracy and response times. Configurable and reusable.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">Aiming Metrics</div><div class="pc-chip">Session Logging</div></div>
+    </div>
+
+    <div class="proj-card" onclick="openProject(7)">
+      <div class="pc-visual" style="background:linear-gradient(135deg,#0d1a10,#080e09);">
+        <svg width="44" height="44" viewBox="0 0 60 60" fill="none" stroke="rgba(120,201,80,0.4)" stroke-width="1.2"><circle cx="30" cy="22" r="9"/><path d="M15 50c0-8 7-13 15-13s15 5 15 13"/></svg>
+        <div class="pc-year">2025</div>
+        <div class="pc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="pc-body">
+        <div class="pc-engine">Unity 3D · Prototype</div>
+        <div class="pc-name">3D Fruit Grab</div>
+        <div class="pc-desc">Solo physics prototype — grab and throw into target zones. Playable on Itch.io.</div>
+      </div>
+      <div class="pc-foot"><div class="pc-chip">3D Physics</div><div class="pc-chip">Grab Mechanics</div></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     PROJECT DETAIL
+════════════════════════════════ -->
+<div class="page" id="pg-detail">
+<div class="pg-wrap">
+  <button class="pd-back" onclick="showPage('projects')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="19 12 5 12"/><polyline points="12 5 5 12 12 19"/></svg>
+    Back to Projects
+  </button>
+  <div class="pd-layout">
+    <div class="pd-main">
+      <div class="pd-eyebrow" id="pd-engine">Unity</div>
+      <h1 class="pd-title" id="pd-title">Project</h1>
+      <p class="pd-tagline" id="pd-tagline"></p>
+      <div class="pd-actions" id="pd-actions"></div>
+      <div class="pd-video" id="pd-video-wrap">
+        <div class="pd-vthumb" id="pd-vthumb" onclick="playVid()">
+          <div class="pd-play-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+          <div class="pd-vthumb-label">Watch Gameplay</div>
+        </div>
+        <div class="pd-no-video" id="pd-no-video" style="display:none;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.2"><rect x="2" y="7" width="15" height="10" rx="2"/><polygon points="17 9 22 12 17 15"/></svg>
+          <div class="pd-no-video-label">Video coming soon</div>
+        </div>
+        <iframe class="pd-iframe" id="pd-iframe" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
+      </div>
+      <div class="pd-section-lbl">About the Project</div>
+      <div class="pd-body" id="pd-body"></div>
+    </div>
+    <div class="pd-side">
+      <div class="pd-scard">
+        <div class="pds-lbl">Project Info</div>
+        <div class="pds-rows" id="pd-info"></div>
+      </div>
+      <div class="pd-scard">
+        <div class="pds-lbl">Tech Stack</div>
+        <div class="pds-chips" id="pd-stack"></div>
+      </div>
+      <div class="pd-scard">
+        <div class="pds-lbl">Dev Notes</div>
+        <div class="pds-notes" id="pd-notes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     PLAY GAMES
+════════════════════════════════ -->
+<div class="page" id="pg-games">
+<div class="pg-wrap">
+
+  <div class="eyebrow">Playable Games</div>
+  <h2 class="pg-title">Play My Games</h2>
+  <p class="pg-sub">Real games you can download and play right now — on Android or in your browser.</p>
+
+  <div class="games-featured-label"><span>Latest Launch</span> — just released on Play Store</div>
+
+  <div class="games-grid">
+
+    <!-- Tank Game -->
+    <div class="game-card" onclick="openGameDetail(0)">
+      <div class="gc-visual" style="background:linear-gradient(135deg,#0d1828,#080f1c);">
+        <svg width="50" height="50" viewBox="0 0 60 60" fill="none" stroke="rgba(201,168,76,0.5)" stroke-width="1.2"><rect x="8" y="22" width="44" height="26" rx="2"/><path d="M20 22V16a10 10 0 0120 0v6"/><circle cx="30" cy="35" r="5"/><line x1="30" y1="30" x2="30" y2="14" stroke-width="2"/></svg>
+        <div class="gc-badge">⭐ New Launch</div>
+        <div class="gc-platform-badge">Play Store</div>
+        <div class="gc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="gc-body">
+        <div class="gc-platform">Unity 2D · Android</div>
+        <div class="gc-name">2D Tank Game</div>
+        <div class="gc-desc">My most complete solo project — enemy AI, shop upgrades, persistent progression. Now live on Google Play.</div>
+      </div>
+      <div class="gc-foot">
+        <a href="https://play.google.com/store/apps/details?id=com.punit.tankgame" target="_blank" class="gc-btn" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17l17.5 8.5z"/></svg>
+          Download Free
+        </a>
+      </div>
+    </div>
+
+    <!-- Push the Box -->
+    <div class="game-card" onclick="openGameDetail(1)">
+      <div class="gc-visual" style="background:linear-gradient(135deg,#101828,#0a1020);">
+        <svg width="50" height="50" viewBox="0 0 60 60" fill="none" stroke="rgba(111,163,204,0.5)" stroke-width="1.2"><rect x="10" y="10" width="16" height="16" rx="1"/><rect x="34" y="10" width="16" height="16" rx="1"/><rect x="10" y="34" width="16" height="16" rx="1"/><rect x="34" y="34" width="16" height="16" rx="1"/><path d="M26 18h8M18 26v8M42 26v8M26 42h8" stroke-dasharray="2 3"/></svg>
+        <div class="gc-badge">Puzzle</div>
+        <div class="gc-platform-badge">Itch.io · Android</div>
+        <div class="gc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="gc-body">
+        <div class="gc-platform">Unity 2D · Android + WebGL</div>
+        <div class="gc-name">Push the Box</div>
+        <div class="gc-desc">6-level sokoban puzzle with teleport portals and 2D lighting. Playable in your browser right now.</div>
+      </div>
+      <div class="gc-foot">
+        <a href="https://punitsehrawat16.itch.io/pushthebox" target="_blank" class="gc-btn" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          Play in Browser
+        </a>
+      </div>
+    </div>
+
+    <!-- Auto Rush -->
+    <div class="game-card" onclick="openGameDetail(2)">
+      <div class="gc-visual" style="background:linear-gradient(135deg,#0c1322,#070c17);">
+        <svg width="50" height="50" viewBox="0 0 60 60" fill="none" stroke="rgba(111,163,204,0.5)" stroke-width="1.2"><rect x="12" y="28" width="36" height="14" rx="2"/><circle cx="22" cy="44" r="4"/><circle cx="38" cy="44" r="4"/><path d="M18 28V20l8-4h8l8 4v8" stroke-dasharray="3 2"/></svg>
+        <div class="gc-badge">Internship</div>
+        <div class="gc-platform-badge">Play Store</div>
+        <div class="gc-arrow"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      </div>
+      <div class="gc-body">
+        <div class="gc-platform">Unity 3D · Android</div>
+        <div class="gc-name">Auto Rush (Internship)</div>
+        <div class="gc-desc">3D endless driving game built during my Yellow Cap Games internship. Core systems built by me.</div>
+      </div>
+      <div class="gc-foot">
+        <a href="https://play.google.com/store/apps/details?id=com.YellowCapGames.AutoRickshawTycoon" target="_blank" class="gc-btn" onclick="event.stopPropagation()">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17l17.5 8.5z"/></svg>
+          Download Free
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Itch.io suggestion -->
+  <div class="itch-suggestion">
+    <div class="itch-l">
+      <div class="itch-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#fa5c5c"><path d="M3.13 1.338C2.08 1.96.02 4.328 0 6.435v1.03c0 1.3.98 2.44 2.395 2.44 1.394 0 2.484-1.104 2.484-2.479 0 1.375 1.059 2.479 2.456 2.479 1.394 0 2.42-1.104 2.42-2.479 0 1.375 1.124 2.479 2.52 2.479h.028c1.394 0 2.518-1.104 2.518-2.479 0 1.375 1.026 2.479 2.42 2.479 1.397 0 2.456-1.104 2.456-2.479 0 1.375 1.09 2.479 2.484 2.479C23.02 9.905 24 8.765 24 7.465V6.435c-.02-2.107-2.08-4.475-3.13-5.097C19.02.658 14.37.03 12 0 9.63.03 4.98.658 3.13 1.338z"/></svg>
+      </div>
+      <div>
+        <div class="itch-title">More games on Itch.io</div>
+        <div class="itch-sub">Check out my full catalog including prototypes, game jam entries, and more playable builds.</div>
+      </div>
+    </div>
+    <a href="https://punitsehrawat16.itch.io/" target="_blank" class="itch-link">
+      Visit Itch.io
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+    </a>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     GAME DETAIL
+════════════════════════════════ -->
+<div class="page" id="pg-gamedetail">
+<div class="pg-wrap">
+  <button class="pd-back" onclick="showPage('games')">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="19 12 5 12"/><polyline points="12 5 5 12 12 19"/></svg>
+    Back to Games
+  </button>
+  <div class="pd-layout">
+    <div class="pd-main">
+      <div class="pd-eyebrow" id="gd-platform"></div>
+      <h1 class="pd-title" id="gd-title"></h1>
+      <p class="pd-tagline" id="gd-tagline"></p>
+      <div class="pd-actions" id="gd-actions"></div>
+      <div class="pd-video">
+        <div class="pd-vthumb" id="gd-vthumb" onclick="playGameVid()">
+          <div class="pd-play-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          </div>
+          <div class="pd-vthumb-label">Watch Gameplay</div>
+        </div>
+        <iframe class="pd-iframe" id="gd-iframe" allowfullscreen allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
+      </div>
+      <div class="pd-section-lbl">About This Game</div>
+      <div class="pd-body" id="gd-body"></div>
+    </div>
+    <div class="pd-side">
+      <div class="pd-scard">
+        <div class="pds-lbl">Game Info</div>
+        <div class="pds-rows" id="gd-info"></div>
+      </div>
+      <div class="pd-scard">
+        <div class="pds-lbl">Features</div>
+        <div class="pds-chips" id="gd-features"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     TIMELINE
+════════════════════════════════ -->
+<div class="page" id="pg-timeline">
+<div class="pg-wrap">
+
+  <div class="eyebrow">Journey</div>
+  <h2 class="pg-title">Timeline</h2>
+  <p class="pg-sub">Professional experience, projects, and education — newest first.</p>
+
+  <div class="tl-list">
+
+    <!-- Tic Tac Toe - April 2026 -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Apr 2026</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">Tic Tac Toe</div>
+        <div class="tl-place">2D · Android · Player vs Player</div>
+        <div class="tl-desc">Local PvP Tic Tac Toe for Android. Players enter custom names before the game, turn-based play with win and draw detection.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">C#</div><div class="tl-tag">Android</div><div class="tl-tag">PvP</div></div>
+      </div>
+    </div>
+
+    <!-- Tank Game - Mar-Apr 2026 -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Mar – Apr 2026</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">2D Tank Game</div>
+        <div class="tl-place">Mobile Title · Android · Live on Play Store</div>
+        <div class="tl-desc">2D mobile tank game featuring player systems, enemy AI, upgrade shop, and persistent progression. Released on Google Play.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">Enemy AI</div><div class="tl-tag">Shop System</div><div class="tl-tag">Save System</div><div class="tl-tag">Play Store</div></div>
+      </div>
+    </div>
+
+    <!-- Yellow Cap Internship - completed -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Jan – Feb 2026</div>
+        <div class="tl-kind">Internship</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type intern">Internship · Completed</div>
+        <div class="tl-card-title">Yellow Cap Games</div>
+        <div class="tl-place">Game Programmer Intern · Remote</div>
+        <div class="tl-desc">Developed core gameplay systems for Auto Rush, a 3D mobile endless driving title — including infinite level spawning, mobile input controls, power-up systems, and vehicle mechanics.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 3D</div><div class="tl-tag">C#</div><div class="tl-tag">Mobile</div><div class="tl-tag">Core Loop</div></div>
+      </div>
+    </div>
+
+    <!-- Auto Rush -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Jan – Feb 2026</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type intern">Internship Project</div>
+        <div class="tl-card-title">Auto Rush</div>
+        <div class="tl-place">Yellow Cap Games · 3D Mobile Game</div>
+        <div class="tl-desc">Built core gameplay systems for a 3D endless driving game including infinite level spawning, mobile input controls, power-up systems, and obstacle interaction mechanics.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 3D</div><div class="tl-tag">Endless Spawning</div><div class="tl-tag">Power-Ups</div><div class="tl-tag">Mobile</div></div>
+      </div>
+    </div>
+
+    <!-- 3D Fruit Grab -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Dec 2025</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">3D Fruit Grab Prototype</div>
+        <div class="tl-place">3D · Physics Prototype</div>
+        <div class="tl-desc">Physics-based prototype exploring grab, carry, and throw mechanics. Player picks up fruits from one zone and scores by landing them in a target zone.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 3D</div><div class="tl-tag">Physics</div><div class="tl-tag">Prototype</div></div>
+      </div>
+    </div>
+
+    <!-- Save the Kid -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Nov 2025</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">Save the Kid</div>
+        <div class="tl-place">2D · Action Survival</div>
+        <div class="tl-desc">2D action survival game with sword combat, endless enemy spawning, and AI that independently targets the player or the kid — creating split-second priority decisions.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">Endless Spawning</div><div class="tl-tag">Combat AI</div></div>
+      </div>
+    </div>
+
+    <!-- Push the Box -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Oct 2025</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">Push the Box</div>
+        <div class="tl-place">2D · Puzzle · 6 Levels</div>
+        <div class="tl-desc">6-level 2D puzzle with grid-based movement, box-pushing mechanics, teleport portals with cooldowns, and 2D lighting. WebGL build published via Itch.io.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">Grid Movement</div><div class="tl-tag">Portals</div><div class="tl-tag">WebGL</div></div>
+      </div>
+    </div>
+
+    <!-- Accuracy Testing -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Aug 2025</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">Accuracy Testing System</div>
+        <div class="tl-place">Dev Tool · Unity</div>
+        <div class="tl-desc">A Unity tool to track and measure player aiming accuracy and response times. Configurable targets, session logging, and exportable reports.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity</div><div class="tl-tag">C#</div><div class="tl-tag">Dev Tool</div></div>
+      </div>
+    </div>
+
+    <!-- Blood Nexus -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">May – Aug 2025</div>
+        <div class="tl-kind">Internship</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type intern">Internship</div>
+        <div class="tl-card-title">Blood Nexus Studio</div>
+        <div class="tl-place">Unity Developer · Remote</div>
+        <div class="tl-desc">Contributed to "Sheriff Showdown", a 2D mobile shooter. Designed and implemented the shop UI system and checkpoint persistence system within an existing production codebase.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">Shop UI</div><div class="tl-tag">Checkpoints</div></div>
+      </div>
+    </div>
+
+    <!-- Blastinator -->
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-date">Jan 2025</div>
+        <div class="tl-kind">Project</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type project">Project</div>
+        <div class="tl-card-title">Blastinator</div>
+        <div class="tl-place">2D · Space Shooter · Game Jam</div>
+        <div class="tl-desc">Fast-paced 2D space shooter built for a game jam. Features AI enemies, weapon switching, and shield mechanics — complete loop built under jam constraints.</div>
+        <div class="tl-tags"><div class="tl-tag">Unity 2D</div><div class="tl-tag">Game Jam</div><div class="tl-tag">AI Enemies</div></div>
+      </div>
+    </div>
+
+    <!-- Education -->
+    <div class="tl-item dot-blue">
+      <div class="tl-left">
+        <div class="tl-date">2022 – 2026</div>
+        <div class="tl-kind">Education</div>
+      </div>
+      <div class="tl-card">
+        <div class="tl-type edu">Education</div>
+        <div class="tl-card-title">Chandigarh University</div>
+        <div class="tl-place">B.E. Computer Science Engineering (Graphics &amp; Gaming)</div>
+        <div class="tl-desc">Four-year specialised CSE degree combining computer science fundamentals with graphics and gaming. Running alongside real internships and personal projects.</div>
+        <div class="tl-tags"><div class="tl-tag">CSE</div><div class="tl-tag">Graphics &amp; Gaming</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     RÉSUMÉ
+════════════════════════════════ -->
+<div class="page" id="pg-resume">
+<div class="pg-wrap">
+
+  <div class="eyebrow">Career</div>
+  <h2 class="pg-title">Résumé</h2>
+  <p class="pg-sub">Full CV covering education, internship experience, and completed projects.</p>
+
+  <div style="max-width:520px;">
+      <div class="resume-card">
+        <div class="rc-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="rc-lbl">Document</div>
+        <div class="rc-title">My Résumé</div>
+        <div class="rc-sub">Up-to-date CV covering both internships, all completed projects, skills, and education. PDF format.</div>
+        <div class="rc-btns">
+          <a href="Resume.pdf" target="_blank" class="rc-btn primary">
+            <span>Open in Browser</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+          <a href="Resume.pdf" download class="rc-btn">
+            <span>Download PDF</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════════════════════════════════
+     CONTACT
+════════════════════════════════ -->
+<div class="page" id="pg-contact">
+<div class="pg-wrap">
+
+  <div class="eyebrow">Get In Touch</div>
+  <h2 class="pg-title">Contact</h2>
+  <p class="pg-sub">Open to professional opportunities, collaborations, and technical discussions.</p>
+
+  <div class="contact-layout">
+    <div class="contact-left">
+      <div class="contact-direct">
+        <div class="cd-label">Email</div>
+        <div class="cd-email-wrap">
+          <span class="cd-email-addr" id="email-addr">punitseh123@gmail.com</span>
+          <button class="cd-copy-btn" onclick="copyEmail()" id="copy-email-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+      <p class="contact-desc">Open to new opportunities, project collaborations, or conversations about gameplay systems and mechanics.</p>
+
+      <div class="socials-list">
+
+        <a href="https://github.com/punitsehrawat16" target="_blank" class="soc-row">
+          <div class="soc-l">
+            <div class="soc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg></div>
+            <div><div class="soc-name">GitHub</div><div class="soc-handle">punitsehrawat16</div></div>
+          </div>
+          <div class="soc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a href="https://linkedin.com/in/punitsehrawat16" target="_blank" class="soc-row">
+          <div class="soc-l">
+            <div class="soc-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+            <div><div class="soc-name">LinkedIn</div><div class="soc-handle">punitsehrawat16</div></div>
+          </div>
+          <div class="soc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a href="https://youtube.com/@punitsehrawat16" target="_blank" class="soc-row">
+          <div class="soc-l">
+            <div class="soc-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.95C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon fill="var(--card)" points="9.75,15.02 15.5,12 9.75,8.98"/></svg></div>
+            <div><div class="soc-name">YouTube</div><div class="soc-handle">@punitsehrawat16</div></div>
+          </div>
+          <div class="soc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <a href="https://punitsehrawat16.itch.io" target="_blank" class="soc-row">
+          <div class="soc-l">
+            <div class="soc-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.13 1.338C2.08 1.96.02 4.328 0 6.435v1.03c0 1.3.98 2.44 2.395 2.44 1.394 0 2.484-1.104 2.484-2.479 0 1.375 1.059 2.479 2.456 2.479 1.394 0 2.42-1.104 2.42-2.479 0 1.375 1.124 2.479 2.52 2.479h.028c1.394 0 2.518-1.104 2.518-2.479 0 1.375 1.026 2.479 2.42 2.479 1.397 0 2.456-1.104 2.456-2.479 0 1.375 1.09 2.479 2.484 2.479C23.02 9.905 24 8.765 24 7.465V6.435c-.02-2.107-2.08-4.475-3.13-5.097C19.02.658 14.37.03 12 0 9.63.03 4.98.658 3.13 1.338z"/></svg></div>
+            <div><div class="soc-name">Itch.io</div><div class="soc-handle">punitsehrawat16.itch.io</div></div>
+          </div>
+          <div class="soc-arr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+        </a>
+
+        <div class="soc-row" id="discord-row" onclick="copyDiscord()">
+          <div class="soc-l">
+            <div class="soc-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg></div>
+            <div><div class="soc-name">Discord</div><div class="soc-handle" id="discord-handle">#Punit8585</div></div>
+          </div>
+          <div class="soc-arr" id="discord-arr" style="font-family:'DM Mono';font-size:11px;letter-spacing:0.06em;">Copy</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="contact-right">
+      <div class="avail-card">
+        <div class="avail-header">
+          <div class="avail-dot"></div>
+          <div class="avail-title">Currently Available</div>
+        </div>
+        <div class="avail-desc">Open to full-time roles, contract work, and game jam collaborations. Based in India — open to remote positions globally.</div>
+      </div>
+      <div class="avail-card" style="margin-top:0;">
+        <div class="pds-lbl" style="margin-bottom:0.65rem;">Preferred Roles</div>
+        <div class="pds-chips">
+          <div class="pds-chip">Gameplay Programmer</div>
+          <div class="pds-chip">Unity Developer</div>
+          <div class="pds-chip">Gameplay Engineer</div>
+          <div class="pds-chip">Systems Designer</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>
+  <div>© 2026 <span class="f-brand">Punit Sehrawat</span></div>
+  <div>Gameplay Programmer</div>
+</footer>
+
+<script>
+
+// ── HELPERS ──
+function getYouTubeEmbedUrl(youtubeUrl) {
+  if (!youtubeUrl) return '';
+  const match = youtubeUrl.match(/(?:youtu\.be\/|v=)([A-Za-z0-9_-]{11})/);
+  if (!match) return '';
+  return 'https://www.youtube.com/embed/' + match[1];
+}
+
+function copyEmail() {
+  const email = 'punitseh123@gmail.com';
+  navigator.clipboard.writeText(email).then(() => {
+    const btn = document.getElementById('copy-email-btn');
+    btn.textContent = '✓ Copied!';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  });
+}
+
+// ── PAGE SYSTEM ──
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.navlinks button').forEach(b => b.classList.remove('active'));
+  document.getElementById('pg-' + name).classList.add('active');
+  const btn = document.querySelector(`.navlinks button[data-page="${name}"]`);
+  if (btn) btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Show/hide FAB (show everywhere except the games page itself)
+  const fab = document.getElementById('play-fab');
+  fab.style.display = (name === 'games' || name === 'gamedetail') ? 'none' : 'flex';
+}
+
+// ── DISCORD COPY ──
+function copyDiscord() {
+  navigator.clipboard.writeText('Punit8585').then(() => {
+    const arr = document.getElementById('discord-arr');
+    arr.textContent = 'Copied!';
+    arr.style.color = 'var(--green)';
+    setTimeout(() => { arr.textContent = 'Copy'; arr.style.color = ''; }, 2000);
+  });
+}
+
+// ── PROJECT DATA ──
+const PROJECTS = [
+  {
+    engine: "Unity 3D · Mobile",
+    title: "Auto Rush",
+    tagline: "3D mobile endless driving game developed during internship at Yellow Cap Games.",
+    youtubeUrl: "https://youtu.be/KfB5rrbCPaA",
+    body: `<p>Auto Rush is a 3D mobile endless driving game developed during my internship at <strong>Yellow Cap Games</strong> (Jan–Feb 2026).</p>
+    <p>I built the <strong>infinite level spawning system</strong> using prefab-based procedural segments, allowing the road and obstacles to generate dynamically as the player progresses.</p>
+    <p>I implemented the <strong>mobile input system</strong> for responsive vehicle control and the <strong>collision-based Game Over system</strong>.</p>
+    <p>The project also includes <strong>power-up systems</strong> such as speed boost and coin magnet. When the magnet activates, nearby coins smoothly move toward the vehicle.</p>
+    <p>Additional work included <strong>wheel rotation tied to vehicle speed</strong>, power-ups integrated via interfaces, and tuning difficulty through gradual speed scaling.</p>`,
+    info: [{k:"Company",v:"Yellow Cap Games"},{k:"Role",v:"Game Programmer Intern"},{k:"Engine",v:"Unity 3D"},{k:"Platform",v:"Mobile"},{k:"Period",v:"Jan – Feb 2026"}],
+    stack: ["Unity 3D","C#","Infinite Level Spawning","Prefab Segments","Mobile Input","Power-Ups","Coin Magnet","Vehicle Movement"],
+    notes: [{t:"Spawning",b:"Procedural level generation using reusable prefab segments."},{t:"Input",b:"Custom mobile controls for steering and acceleration."},{t:"Power-Ups",b:"Speed boost and magnet power-ups implemented using interface architecture."},{t:"Difficulty",b:"Game speed gradually increases over time to scale difficulty."}],
+    links: [{l:"Play on Play Store", h:"https://play.google.com/store/apps/details?id=com.YellowCapGames.AutoRickshawTycoon", p:true}]
+  },
+  {
+    engine: "Unity 2D · Mobile",
+    title: "2D Tank Game",
+    tagline: "Solo-built mobile tank game with enemy AI, shop system, and persistent progression. Live on Google Play.",
+    youtubeUrl: "https://youtu.be/CFxBZLDqPis",
+    body: `<p>A complete solo 2D mobile tank game. Covers player movement, free-aim shooting, and a layered enemy AI system that escalates challenge over time.</p>
+    <p>I built a <strong>shop system</strong> where players upgrade tank stats between runs, a <strong>score system</strong> with persistent leaderboard via PlayerPrefs, and a <strong>save system</strong> that retains progression across sessions.</p>
+    <p>Released on Google Play — my most complete project to date.</p>`,
+    info: [{k:"Platform",v:"Android"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Mar – Apr 2026"},{k:"Type",v:"Solo Project"},{k:"Status",v:"Live on Play Store"}],
+    stack: ["Unity 2D","C#","Enemy AI","Shop System","Score System","Save System","PlayerPrefs","Mobile Input","Android"],
+    notes: [{t:"Player",b:"Movement, aiming, and shooting controller."},{t:"AI",b:"Enemy state machine with escalating difficulty."},{t:"Shop",b:"Stat-based upgrade shop with save persistence."},{t:"Score/Save",b:"Score tracking and PlayerPrefs-based save system."}],
+    links: [{l:"Download on Play Store", h:"https://play.google.com/store/apps/details?id=com.punit.tankgame", p:true}]
+  },
+  {
+    engine: "Unity 2D · Action",
+    title: "Save the Kid",
+    tagline: "Solo Android survival game — sword combat, endless spawning, and dual-target enemy AI.",
+    youtubeUrl: "",
+    body: `<p>A solo-built 2D action survival game — enemies independently choose to target either the player or the kid being protected, forcing constant repositioning.</p>
+    <p>I built the <strong>endless spawning system</strong> that scales wave intensity over time, sword combat with animation-linked hitboxes, and a score system tracking survival time and kills. Available on Android.</p>`,
+    info: [{k:"Platform",v:"Android"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Nov 2025"},{k:"Type",v:"Solo Project"}],
+    stack: ["Unity 2D","C#","Endless Spawning","Dual-Target AI","Score System","Animation Events","Android"],
+    notes: [{t:"AI",b:"Enemies independently pick player or kid as target."},{t:"Spawning",b:"Endless wave spawner scaling in difficulty."},{t:"Score",b:"Survival time and kill-count score system."}],
+    links: []
+  },
+  {
+    engine: "Unity 2D · Puzzle",
+    title: "Push the Box",
+    tagline: "Solo sokoban-inspired puzzle — grid movement, teleport portals, box-completion detection. Android & Web.",
+    youtubeUrl: "https://youtu.be/d-IhmfnzAm0",
+    body: `<p>A solo-built, sokoban-inspired 6-level puzzle game. Classic block-pushing mechanics extended with teleport portals and 2D lighting. Each level has exactly one clean solution.</p>
+    <p>I built a <strong>grid-based movement system</strong>, <strong>portal mechanics</strong> with cooldown timers, and a <strong>box-completion detection system</strong> that checks whether all boxes are correctly placed before unlocking the next level. Available on Android and playable in browser.</p>`,
+    info: [{k:"Platform",v:"Android + Web"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Oct 2025"},{k:"Levels",v:"6"},{k:"Type",v:"Solo Project"}],
+    stack: ["Unity 2D","C#","Grid Movement","Tilemap","2D Lighting","Portal System","Box Completion System","Android","WebGL"],
+    notes: [{t:"Grid",b:"Tile-based movement with undo support."},{t:"Portals",b:"Cooldown-gated teleport — no trivial solutions."},{t:"Completion",b:"System checks all boxes are correctly placed before progression."},{t:"Lighting",b:"2D lighting for gameplay clarity and atmosphere."}],
+    links: [{l:"Play on Itch.io", h:"https://punitsehrawat16.itch.io/pushthebox", p:true}]
+  },
+  {
+    engine: "Unity 2D · Internship",
+    title: "Sheriff Showdown",
+    tagline: "Internship at Blood Nexus Studio — built 6 gameplay systems on an existing codebase.",
+    youtubeUrl: "",
+    body: `<p>During my remote internship at <strong>Blood Nexus Studio</strong> (May–Aug 2025), I contributed to Sheriff Showdown, a 2D mobile western shooter. The core player and enemy systems were built by my senior — my role was to design and implement new gameplay systems on top of that foundation.</p>
+    <p><strong>Checkpoint System</strong> — save points that persist player progress and handle respawn positioning.</p>
+    <p><strong>Shop System</strong> — full in-game store with purchase flow, item equip logic, and UI.</p>
+    <p><strong>Barrel Blast System</strong> — explosive barrels that trigger area damage on interaction.</p>
+    <p><strong>Fire Trail System</strong> — dynamic fire trails left by projectiles or player actions.</p>
+    <p><strong>Bullet Reflecting Mechanic</strong> — bullets that deflect off surfaces at calculated angles.</p>
+    <p><strong>Arrow Box System</strong> — trigger boxes that fire arrows in a pre-planned direction on bullet interaction.</p>`,
+    info: [{k:"Company",v:"Blood Nexus Studio"},{k:"Role",v:"Intern"},{k:"Period",v:"May–Aug 2025"},{k:"Type",v:"Internship · Remote"}],
+    stack: ["Unity 2D","C#","Checkpoint System","Shop UI","Barrel Blast","Fire Trail","Bullet Reflect","Arrow Box System","Git"],
+    notes: [{t:"Checkpoints",b:"Save points with persistent progress and respawn positioning."},{t:"Shop",b:"Full purchase and equip flow for in-game items."},{t:"Barrel Blast",b:"Explosive area-damage triggers on interaction."},{t:"Fire Trail",b:"Dynamic fire trail system for projectiles and actions."},{t:"Bullet Reflect",b:"Bullets deflect off surfaces at calculated angles."},{t:"Arrow Box",b:"Pre-planned directional arrow fire on bullet interaction."},{t:"Codebase",b:"All systems built on top of existing player/enemy architecture by senior."}],
+    links: []
+  },
+  {
+    engine: "Unity 2D · Game Jam",
+    title: "Blastinator",
+    tagline: "Game jam collab — player mechanics, bullet switching, shield damage & UI. Enemy AI by teammate.",
+    youtubeUrl: "",
+    body: `<p>A game jam collab — I handled the player side, my teammate built the enemy system. Fast-paced 2D space shooter built under jam time constraints.</p>
+    <p><strong>My contributions:</strong> player movement and mechanics, bullet-switching system with distinct projectile types, damage and shield-breaking system for enemies, and all UI including menus and HUD.</p>`,
+    info: [{k:"Type",v:"Collab (Game Jam)"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Jan 2025"},{k:"Platform",v:"PC / WebGL"},{k:"My Role",v:"Player + UI"}],
+    stack: ["Unity 2D","C#","Player Mechanics","Bullet Switching","Shield Damage System","UI / Menus"],
+    notes: [{t:"Player",b:"Movement, shooting, and player controller."},{t:"Bullet Switching",b:"Multiple projectile types with distinct behaviours."},{t:"Shields",b:"Enemy shields require specific bullet types to break."},{t:"UI / Menus",b:"Player HUD, main menu, and game over screens."},{t:"Enemy AI",b:"Built by teammate — state machine with pursue/strafe/retreat."}],
+    links: []
+  },
+  {
+    engine: "Unity · Dev Tool",
+    title: "Accuracy Testing System",
+    tagline: "Solo Unity tool to measure and log player aiming accuracy and reaction time.",
+    youtubeUrl: "",
+    body: `<p>A solo-built standalone testing tool in Unity to objectively measure player aiming accuracy and response times — reusable for any game with targeting mechanics.</p>
+    <p>Logs hit/miss ratios and time-to-hit per target. Targets spawn on configurable patterns and distances. Designed as a drop-in scene that works in any Unity project.</p>`,
+    info: [{k:"Type",v:"Solo Project"},{k:"Engine",v:"Unity"},{k:"Date",v:"Aug 2025"},{k:"Platform",v:"Editor / PC"}],
+    stack: ["Unity","C#","ScriptableObjects","Data Logging","Target Spawner"],
+    notes: [{t:"Metrics",b:"Hit/miss rate and time-to-hit per session."},{t:"Targets",b:"Configurable patterns, speeds, and distances."},{t:"Reusability",b:"Drop-in scene, no game-specific dependencies."}],
+    links: []
+  },
+  {
+    engine: "Unity 3D · Prototype",
+    title: "3D Fruit Grab",
+    tagline: "Solo physics prototype — grab fruits, carry them, and score by landing them in target zones.",
+    youtubeUrl: "https://youtu.be/upzUn7lIKSw",
+    body: `<p>A solo-built 3D prototype exploring physics-based grab and carry mechanics. The player picks up fruits from a source zone, physically carries or throws them, and scores by landing them in a target zone. Playable on Itch.io.</p>
+    <p>Focus was on making the grab feel natural — smooth item follow without clipping, and velocity-based throw force calculated from player movement at release.</p>`,
+    info: [{k:"Type",v:"Solo Project"},{k:"Engine",v:"Unity 3D"},{k:"Date",v:"Dec 2025"},{k:"Platform",v:"PC"}],
+    stack: ["Unity 3D","C#","Rigidbody Physics","Grab Mechanics","Zone Scoring"],
+    notes: [{t:"Grab",b:"Smooth physics follow with no clipping."},{t:"Throw",b:"Velocity-based force from player movement."},{t:"Scoring",b:"Zone collider scoring with visual feedback."}],
+    links: [{l:"Play on Itch.io", h:"https://punitsehrawat16.itch.io", p:true}]
+  },
+  {
+    engine: "Unity 2D · Android",
+    title: "Tic Tac Toe",
+    tagline: "Local PvP Tic Tac Toe for Android — custom player names, turn tracking, win and draw detection.",
+    youtubeUrl: "",
+    body: `<p>A clean local multiplayer Tic Tac Toe game built for Android. Both players enter their names before the game starts, keeping the experience personal and competitive.</p>
+    <p>The game handles <strong>turn-based play</strong>, <strong>win detection</strong> across all rows, columns, and diagonals, and <strong>draw detection</strong> when the board fills. Clean UI shows whose turn it is and announces the result.</p>`,
+    info: [{k:"Platform",v:"Android"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Apr 2026"},{k:"Type",v:"Solo Project"},{k:"Mode",v:"Player vs Player"}],
+    stack: ["Unity 2D","C#","Android","UI System","Turn Logic","Win Detection"],
+    notes: [{t:"Names",b:"Players enter custom names before the match."},{t:"Turns",b:"Clear UI showing whose turn it is at all times."},{t:"Win/Draw",b:"Full detection across all rows, columns, diagonals, and board-full draw."}],
+    links: []
+  }
+];
+
+let activeVideoUrl = '';
+
+function openProject(i) {
+  const p = PROJECTS[i];
+  activeVideoUrl = p.youtubeUrl ? getYouTubeEmbedUrl(p.youtubeUrl) : '';
+  document.getElementById('pd-engine').textContent = p.engine;
+  document.getElementById('pd-title').textContent = p.title;
+  document.getElementById('pd-tagline').textContent = p.tagline;
+  document.getElementById('pd-body').innerHTML = p.body;
+
+  const fr = document.getElementById('pd-iframe');
+  const th = document.getElementById('pd-vthumb');
+  const nv = document.getElementById('pd-no-video');
+  fr.src = ''; fr.classList.remove('on');
+
+  if (activeVideoUrl) {
+    th.style.display = 'flex'; nv.style.display = 'none';
+  } else {
+    th.style.display = 'none'; nv.style.display = 'flex';
+  }
+
+  document.getElementById('pd-actions').innerHTML = p.links.map(l =>
+    `<a href="${l.h}" target="_blank" class="pd-btn${l.p?' primary':''}">${l.l}</a>`
+  ).join('');
+  document.getElementById('pd-info').innerHTML = p.info.map(r =>
+    `<div class="pds-row"><span class="pds-rname">${r.k}</span><span class="pds-rval">${r.v}</span></div>`
+  ).join('');
+  document.getElementById('pd-stack').innerHTML = p.stack.map(s =>
+    `<div class="pds-chip">${s}</div>`
+  ).join('');
+  document.getElementById('pd-notes').innerHTML = p.notes.map(n =>
+    `<div class="pdn-row"><div class="pdn-dot"></div><div class="pdn-txt"><strong>${n.t}:</strong> ${n.b}</div></div>`
+  ).join('');
+  showPage('detail');
+}
+
+function playVid() {
+  if (!activeVideoUrl) return;
+  const fr = document.getElementById('pd-iframe');
+  const th = document.getElementById('pd-vthumb');
+  fr.src = activeVideoUrl + '?autoplay=1&rel=0';
+  fr.classList.add('on');
+  th.style.display = 'none';
+}
+
+// ── GAME DETAIL DATA ──
+const GAMES = [
+  {
+    platform: "Unity 2D · Android",
+    title: "2D Tank Game",
+    tagline: "My latest Play Store launch — solo-built tank game with enemy AI, upgrades, and persistent progression.",
+    youtubeUrl: "https://youtu.be/CFxBZLDqPis",
+    body: `<p>A complete solo 2D mobile tank game — my most polished release to date. Take control of your tank, survive escalating enemy waves, and upgrade your stats in the shop between runs.</p>
+    <p>Features <strong>enemy AI</strong> that increases in difficulty, a full <strong>upgrade shop</strong>, and a <strong>persistent save system</strong> so your progress carries between sessions. Free to download on Google Play.</p>`,
+    info: [{k:"Platform",v:"Android"},{k:"Engine",v:"Unity 2D"},{k:"Date",v:"Mar – Apr 2026"},{k:"Status",v:"Live on Play Store"},{k:"Price",v:"Free"}],
+    features: ["Enemy AI","Upgrade Shop","Save System","Score Tracking","Mobile Controls"],
+    links: [{l:"Download on Play Store", h:"https://play.google.com/store/apps/details?id=com.punit.tankgame", p:true}]
+  },
+  {
+    platform: "Unity 2D · Android + WebGL",
+    title: "Push the Box",
+    tagline: "6-level sokoban puzzle with teleport portals — play right now in your browser, no download needed.",
+    youtubeUrl: "https://youtu.be/d-IhmfnzAm0",
+    body: `<p>A solo-built sokoban-inspired puzzle game with a twist — teleport portals. Push boxes onto their targets across 6 hand-crafted levels, using portals strategically to find the clean solution.</p>
+    <p>Playable directly in your browser via Itch.io, or download the Android APK. Features <strong>2D lighting</strong> for atmosphere and a <strong>grid-based movement system</strong> with undo support.</p>`,
+    info: [{k:"Platform",v:"Android + WebGL"},{k:"Engine",v:"Unity 2D"},{k:"Levels",v:"6"},{k:"Date",v:"Oct 2025"},{k:"Price",v:"Free"}],
+    features: ["Grid Movement","Teleport Portals","Box Completion","2D Lighting","Undo System"],
+    links: [{l:"Play in Browser (Itch.io)", h:"https://punitsehrawat16.itch.io/pushthebox", p:true}]
+  },
+  {
+    platform: "Unity 3D · Android",
+    title: "Auto Rush (Internship)",
+    tagline: "3D endless driving game built during my Yellow Cap Games internship — core systems by me.",
+    youtubeUrl: "https://youtu.be/KfB5rrbCPaA",
+    body: `<p>An endless 3D driving game built during my internship at <strong>Yellow Cap Games</strong>. I developed the core gameplay systems — infinite road generation, vehicle controls, power-ups, and obstacle mechanics.</p>
+    <p>Drive as far as you can while dodging obstacles and collecting power-ups. Free on Google Play.</p>`,
+    info: [{k:"Platform",v:"Android"},{k:"Engine",v:"Unity 3D"},{k:"Company",v:"Yellow Cap Games"},{k:"Period",v:"Jan – Feb 2026"},{k:"Price",v:"Free"}],
+    features: ["Endless Spawning","Power-Ups","Mobile Controls","Speed Scaling","Coin Magnet"],
+    links: [{l:"Download on Play Store", h:"https://play.google.com/store/apps/details?id=com.YellowCapGames.AutoRickshawTycoon", p:true}]
+  }
+];
+
+let activeGameVideoUrl = '';
+
+function openGameDetail(i) {
+  const g = GAMES[i];
+  activeGameVideoUrl = g.youtubeUrl ? getYouTubeEmbedUrl(g.youtubeUrl) : '';
+  document.getElementById('gd-platform').textContent = g.platform;
+  document.getElementById('gd-title').textContent = g.title;
+  document.getElementById('gd-tagline').textContent = g.tagline;
+  document.getElementById('gd-body').innerHTML = g.body;
+
+  const fr = document.getElementById('gd-iframe');
+  const th = document.getElementById('gd-vthumb');
+  fr.src = ''; fr.classList.remove('on');
+  th.style.display = 'flex';
+
+  document.getElementById('gd-actions').innerHTML = g.links.map(l =>
+    `<a href="${l.h}" target="_blank" class="pd-btn${l.p?' primary':''}">${l.l}</a>`
+  ).join('');
+  document.getElementById('gd-info').innerHTML = g.info.map(r =>
+    `<div class="pds-row"><span class="pds-rname">${r.k}</span><span class="pds-rval">${r.v}</span></div>`
+  ).join('');
+  document.getElementById('gd-features').innerHTML = g.features.map(f =>
+    `<div class="pds-chip">${f}</div>`
+  ).join('');
+
+  showPage('gamedetail');
+}
+
+function playGameVid() {
+  if (!activeGameVideoUrl) return;
+  const fr = document.getElementById('gd-iframe');
+  const th = document.getElementById('gd-vthumb');
+  fr.src = activeGameVideoUrl + '?autoplay=1&rel=0';
+  fr.classList.add('on');
+  th.style.display = 'none';
+}
+</script>
+</body>
+</html>
